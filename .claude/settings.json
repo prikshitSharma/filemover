@@ -1,0 +1,18 @@
+{
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"if": "Bash(git commit:*)",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const{execSync}=require('child_process');const fs=require('fs');const cwd='c:/Users/priks/.claude/projects/filemover';const hasPkg=fs.existsSync(cwd+'/package.json')||fs.existsSync(cwd+'/server/package.json')||fs.existsSync(cwd+'/client/package.json');if(!hasPkg){process.exit(0)}const dirs=[cwd,cwd+'/server',cwd+'/client'].filter(d=>fs.existsSync(d+'/package.json')&&fs.existsSync(d+'/node_modules'));let blocked=false;let msg='';for(const dir of dirs){try{execSync('npm audit --audit-level=high',{cwd:dir,stdio:'pipe'})}catch(e){blocked=true;msg+=dir+': vulnerabilities found. '}}if(blocked){console.log(JSON.stringify({continue:false,stopReason:'npm audit blocked commit: '+msg+'Run npm audit for details.'}))}else{console.log(JSON.stringify({continue:true}))}})\"",
+						"timeout": 30,
+						"statusMessage": "Running npm audit..."
+					}
+				]
+			}
+		]
+	}
+}

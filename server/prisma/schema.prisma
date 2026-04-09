@@ -1,0 +1,60 @@
+generator client {
+	provider = "prisma-client"
+	output   = "../src/generated/prisma"
+}
+
+datasource db {
+	provider = "sqlite"
+	url      = env("DATABASE_URL")
+}
+
+model Connection {
+	id        String   @id @default(uuid())
+	name      String
+	type      String   // sftp, ftp, smb, sharepoint, azure-storage
+	host      String
+	port      Int?
+	username  String?
+	password  String?
+	keyPath   String?
+	extra     String?  // JSON string for protocol-specific config
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+
+	jobsAsSource      Job[] @relation("SourceConnection")
+	jobsAsDestination Job[] @relation("DestinationConnection")
+}
+
+model Job {
+	id                  String   @id @default(uuid())
+	name                String
+	sourceConnectionId  String
+	sourceConnection    Connection @relation("SourceConnection", fields: [sourceConnectionId], references: [id])
+	sourcePath          String
+	destConnectionId    String
+	destConnection      Connection @relation("DestinationConnection", fields: [destConnectionId], references: [id])
+	destPath            String
+	filePattern         String   @default("*")
+	schedule            String?  // cron expression, null = manual only
+	onComplete          String   @default("nothing") // nothing, archive, delete
+	enabled             Boolean  @default(true)
+	createdAt           DateTime @default(now())
+	updatedAt           DateTime @updatedAt
+
+	transferLogs TransferLog[]
+}
+
+model TransferLog {
+	id            String   @id @default(uuid())
+	jobId         String
+	job           Job      @relation(fields: [jobId], references: [id])
+	fileName      String
+	sourcePath    String
+	destPath      String
+	status        String   // pending, transferring, completed, failed
+	fileSize      Int?
+	duration      Int?     // milliseconds
+	errorMessage  String?
+	startedAt     DateTime @default(now())
+	completedAt   DateTime?
+}
