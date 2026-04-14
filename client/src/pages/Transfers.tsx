@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { ScrollText, CheckCircle, XCircle, Clock } from "lucide-react";
+import type { TransferLog } from "../types";
 
 const statusIcons: Record<string, React.ReactNode> = {
 	completed: <CheckCircle className="w-4 h-4 text-green-600" />,
@@ -13,9 +14,10 @@ export function Transfers() {
 	const { data, isLoading } = useQuery({
 		queryKey: ["transfers"],
 		queryFn: () => api.getTransfers(),
+		refetchInterval: 3000,
 	});
 
-	const transfers = (data as { transfers: Record<string, unknown>[]; total: number } | undefined)?.transfers;
+	const transfers = data?.transfers;
 
 	return (
 		<div>
@@ -37,16 +39,23 @@ export function Transfers() {
 								<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
 								<th className="text-left px-4 py-3 font-medium text-gray-600">File</th>
 								<th className="text-left px-4 py-3 font-medium text-gray-600">Job</th>
+								<th className="text-left px-4 py-3 font-medium text-gray-600">Size</th>
+								<th className="text-left px-4 py-3 font-medium text-gray-600">Duration</th>
 								<th className="text-left px-4 py-3 font-medium text-gray-600">Started</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-gray-100">
-							{transfers.map((t) => (
-								<tr key={String(t.id)} className="hover:bg-gray-50">
-									<td className="px-4 py-3">{statusIcons[String(t.status)] ?? t.status}</td>
-									<td className="px-4 py-3 text-gray-900">{String(t.fileName)}</td>
-									<td className="px-4 py-3 text-gray-500">{String((t.job as Record<string, unknown>)?.name)}</td>
-									<td className="px-4 py-3 text-gray-500">{new Date(String(t.startedAt)).toLocaleString()}</td>
+							{transfers.map((t: TransferLog) => (
+								<tr key={t.id} className="hover:bg-gray-50">
+									<td className="px-4 py-3">{statusIcons[t.status] ?? t.status}</td>
+									<td className="px-4 py-3 text-gray-900">
+										{t.fileName}
+										{t.errorMessage && <div className="text-xs text-red-600 mt-0.5">{t.errorMessage}</div>}
+									</td>
+									<td className="px-4 py-3 text-gray-500">{t.job?.name}</td>
+									<td className="px-4 py-3 text-gray-500">{t.fileSize != null ? formatBytes(t.fileSize) : "—"}</td>
+									<td className="px-4 py-3 text-gray-500">{t.duration != null ? `${t.duration} ms` : "—"}</td>
+									<td className="px-4 py-3 text-gray-500">{new Date(t.startedAt).toLocaleString()}</td>
 								</tr>
 							))}
 						</tbody>
@@ -55,4 +64,10 @@ export function Transfers() {
 			)}
 		</div>
 	);
+}
+
+function formatBytes(n: number): string {
+	if (n < 1024) return `${n} B`;
+	if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+	return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
