@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { PrismaClient } from "../generated/prisma/client";
 import { JobSchema } from "../types";
+import { runJob } from "../core/transferEngine";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -75,6 +76,17 @@ router.delete("/:id", async (req: Request<{ id: string }>, res: Response) => {
 		where: { id: req.params.id },
 	});
 	res.status(204).send();
+});
+
+// POST /api/jobs/:id/run — trigger transfer run and return summary
+router.post("/:id/run", async (req: Request<{ id: string }>, res: Response) => {
+	try {
+		const summary = await runJob(req.params.id);
+		res.json(summary);
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		res.status(500).json({ error: message });
+	}
 });
 
 export { router as jobsRouter };

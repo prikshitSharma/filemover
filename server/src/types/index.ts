@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const ConnectionSchema = z.object({
 	name: z.string().min(1),
-	type: z.enum(["sftp", "ftp", "smb", "sharepoint", "azure-storage"]),
+	type: z.enum(["sftp", "ftp", "smb", "sharepoint", "azure-storage", "local"]),
 	host: z.string().min(1),
 	port: z.number().int().positive().optional(),
 	username: z.string().optional(),

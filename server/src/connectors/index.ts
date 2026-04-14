@@ -2,7 +2,8 @@ export type { FileConnector, FileInfo, ConnectorConfig } from "./base";
 
 // Connector registry — add new connectors here
 const connectorMap: Record<string, () => Promise<import("./base").FileConnector>> = {
-	// sftp: async () => new (await import("./sftp")).SftpConnector(),
+	sftp: async () => new (await import("./sftp")).SftpConnector(),
+	local: async () => new (await import("./local")).LocalConnector(),
 	// ftp: async () => new (await import("./ftp")).FtpConnector(),
 	// smb: async () => new (await import("./smb")).SmbConnector(),
 	// sharepoint: async () => new (await import("./sharepoint")).SharePointConnector(),
