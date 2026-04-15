@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Modal } from "./Modal";
-import { api } from "../api/client";
-import type { ConnectionType, CreateConnectionInput } from "../types";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { api } from "@/api/client";
+import type { ConnectionType, CreateConnectionInput } from "@/types";
 
 interface Props {
 	open: boolean;
@@ -14,16 +18,18 @@ const TYPES: { value: ConnectionType; label: string }[] = [
 	{ value: "local", label: "Local folder" },
 ];
 
+const EMPTY: CreateConnectionInput = { name: "", type: "sftp", host: "", port: 22 };
+
 export function ConnectionForm({ open, onClose }: Props) {
 	const qc = useQueryClient();
-	const [form, setForm] = useState<CreateConnectionInput>({ name: "", type: "sftp", host: "", port: 22 });
+	const [form, setForm] = useState<CreateConnectionInput>(EMPTY);
 	const [error, setError] = useState<string | null>(null);
 
 	const createMut = useMutation({
 		mutationFn: api.createConnection,
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ["connections"] });
-			setForm({ name: "", type: "sftp", host: "", port: 22 });
+			setForm(EMPTY);
 			setError(null);
 			onClose();
 		},
@@ -32,8 +38,7 @@ export function ConnectionForm({ open, onClose }: Props) {
 
 	const isLocal = form.type === "local";
 
-	function submit(e: React.FormEvent) {
-		e.preventDefault();
+	function submit() {
 		setError(null);
 		const payload: CreateConnectionInput = { name: form.name, type: form.type, host: form.host };
 		if (!isLocal) {
@@ -45,104 +50,93 @@ export function ConnectionForm({ open, onClose }: Props) {
 	}
 
 	return (
-		<Modal
-			open={open}
-			onClose={onClose}
-			title="New Connection"
-			footer={
-				<>
-					<button
-						type="button"
-						onClick={onClose}
-						className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg"
-					>
+		<Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+			<DialogContent className="sm:max-w-lg">
+				<DialogHeader>
+					<DialogTitle>New Connection</DialogTitle>
+					<DialogDescription>Configure a server or local folder to move files to or from.</DialogDescription>
+				</DialogHeader>
+				<form
+					id="connection-form"
+					onSubmit={(e) => {
+						e.preventDefault();
+						submit();
+					}}
+					className="space-y-3"
+				>
+					<div className="space-y-1.5">
+						<Label htmlFor="conn-name">Name</Label>
+						<Input
+							id="conn-name"
+							required
+							value={form.name}
+							onChange={(e) => setForm({ ...form, name: e.target.value })}
+							placeholder="My SFTP server"
+						/>
+					</div>
+					<div className="space-y-1.5">
+						<Label htmlFor="conn-type">Type</Label>
+						<Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v as ConnectionType })}>
+							<SelectTrigger id="conn-type" className="w-full">
+								<SelectValue />
+							</SelectTrigger>
+							<SelectContent>
+								{TYPES.map((t) => (
+									<SelectItem key={t.value} value={t.value}>
+										{t.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
+					<div className="space-y-1.5">
+						<Label htmlFor="conn-host">{isLocal ? "Absolute folder path" : "Host"}</Label>
+						<Input
+							id="conn-host"
+							required
+							value={form.host}
+							onChange={(e) => setForm({ ...form, host: e.target.value })}
+							placeholder={isLocal ? "C:/Users/you/transfers" : "sftp.example.com"}
+						/>
+					</div>
+					{!isLocal && (
+						<>
+							<div className="space-y-1.5">
+								<Label htmlFor="conn-port">Port</Label>
+								<Input
+									id="conn-port"
+									type="number"
+									value={form.port ?? ""}
+									onChange={(e) => setForm({ ...form, port: e.target.value ? Number(e.target.value) : undefined })}
+									placeholder="22"
+								/>
+							</div>
+							<div className="space-y-1.5">
+								<Label htmlFor="conn-user">Username</Label>
+								<Input id="conn-user" value={form.username ?? ""} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+							</div>
+							<div className="space-y-1.5">
+								<Label htmlFor="conn-pass">Password</Label>
+								<Input
+									id="conn-pass"
+									type="password"
+									value={form.password ?? ""}
+									onChange={(e) => setForm({ ...form, password: e.target.value })}
+								/>
+							</div>
+						</>
+					)}
+					{error && <div className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</div>}
+				</form>
+				<DialogFooter>
+					<Button type="button" variant="ghost" onClick={onClose}>
 						Cancel
-					</button>
-					<button
-						type="submit"
-						form="connection-form"
-						disabled={createMut.isPending}
-						className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50"
-					>
+					</Button>
+					<Button type="submit" form="connection-form" disabled={createMut.isPending}>
 						{createMut.isPending ? "Saving..." : "Save"}
-					</button>
-				</>
-			}
-		>
-			<form id="connection-form" onSubmit={submit} className="space-y-3">
-				<Field label="Name">
-					<input
-						required
-						value={form.name}
-						onChange={(e) => setForm({ ...form, name: e.target.value })}
-						className={inputCls}
-						placeholder="My SFTP server"
-					/>
-				</Field>
-				<Field label="Type">
-					<select
-						value={form.type}
-						onChange={(e) => setForm({ ...form, type: e.target.value as ConnectionType })}
-						className={inputCls}
-					>
-						{TYPES.map((t) => (
-							<option key={t.value} value={t.value}>
-								{t.label}
-							</option>
-						))}
-					</select>
-				</Field>
-				<Field label={isLocal ? "Absolute folder path" : "Host"}>
-					<input
-						required
-						value={form.host}
-						onChange={(e) => setForm({ ...form, host: e.target.value })}
-						className={inputCls}
-						placeholder={isLocal ? "C:/Users/you/transfers" : "sftp.example.com"}
-					/>
-				</Field>
-				{!isLocal && (
-					<>
-						<Field label="Port">
-							<input
-								type="number"
-								value={form.port ?? ""}
-								onChange={(e) => setForm({ ...form, port: e.target.value ? Number(e.target.value) : undefined })}
-								className={inputCls}
-								placeholder="22"
-							/>
-						</Field>
-						<Field label="Username">
-							<input
-								value={form.username ?? ""}
-								onChange={(e) => setForm({ ...form, username: e.target.value })}
-								className={inputCls}
-							/>
-						</Field>
-						<Field label="Password">
-							<input
-								type="password"
-								value={form.password ?? ""}
-								onChange={(e) => setForm({ ...form, password: e.target.value })}
-								className={inputCls}
-							/>
-						</Field>
-					</>
-				)}
-				{error && <div className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</div>}
-			</form>
-		</Modal>
-	);
-}
-
-const inputCls =
-	"w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-	return (
-		<label className="block">
-			<span className="text-sm font-medium text-gray-700 block mb-1">{label}</span>
-			{children}
-		</label>
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
 	);
 }
