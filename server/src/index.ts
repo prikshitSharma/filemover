@@ -4,6 +4,7 @@ import { connectionsRouter } from "./api/connections";
 import { jobsRouter } from "./api/jobs";
 import { transfersRouter } from "./api/transfers";
 import { errorHandler } from "./middleware/errorHandler";
+import { startScheduler } from "./core/scheduler";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,4 +27,7 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
 	console.log(`FileMover server running on http://localhost:${PORT}`);
+	startScheduler().catch((err) =>
+		console.error("[scheduler] failed to start:", err),
+	);
 });

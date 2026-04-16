@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { LayoutDashboard, Link, FileBox, ScrollText, Settings } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navItems = [
 	{ to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -11,39 +12,43 @@ const navItems = [
 
 export function Layout() {
 	return (
-		<div className="flex h-screen bg-gray-50">
-			{/* Sidebar */}
-			<aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-				<div className="p-6 border-b border-gray-200">
-					<h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-						<FileBox className="w-6 h-6 text-blue-600" />
+		<div className="flex h-screen bg-background text-foreground">
+			<aside className="w-64 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
+				<div className="px-6 py-5 border-b border-sidebar-border flex items-center justify-between">
+					<h1 className="text-lg font-semibold flex items-center gap-2">
+						<span className="grid place-items-center w-8 h-8 rounded-lg bg-linear-to-br from-primary to-primary/70 text-primary-foreground shadow-sm">
+							<FileBox className="w-4 h-4" />
+						</span>
 						FileMover
 					</h1>
+					<ThemeToggle />
 				</div>
-				<nav className="flex-1 p-4 space-y-1">
+				<nav className="flex-1 p-3 space-y-1">
 					{navItems.map(({ to, icon: Icon, label }) => (
 						<NavLink
 							key={to}
 							to={to}
 							end={to === "/"}
 							className={({ isActive }) =>
-								`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+								`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
 									isActive
-										? "bg-blue-50 text-blue-700"
-										: "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+										? "bg-sidebar-accent text-sidebar-accent-foreground"
+										: "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground"
 								}`
 							}
 						>
-							<Icon className="w-5 h-5" />
+							<Icon className="w-4 h-4" />
 							{label}
 						</NavLink>
 					))}
 				</nav>
+				<div className="px-4 py-3 text-xs text-sidebar-foreground/50 border-t border-sidebar-border">
+					v0.1 · Phase 2
+				</div>
 			</aside>
 
-			{/* Main content */}
-			<main className="flex-1 overflow-auto">
-				<div className="p-8">
+			<main className="flex-1 overflow-auto bg-linear-to-b from-background to-muted/30">
+				<div className="p-8 max-w-7xl mx-auto">
 					<Outlet />
 				</div>
 			</main>

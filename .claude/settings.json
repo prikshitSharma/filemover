@@ -1,18 +1,80 @@
 {
-	"hooks": {
-		"PreToolUse": [
-			{
-				"matcher": "Bash",
-				"if": "Bash(git commit:*)",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const{execSync}=require('child_process');const fs=require('fs');const cwd='c:/Users/priks/.claude/projects/filemover';const hasPkg=fs.existsSync(cwd+'/package.json')||fs.existsSync(cwd+'/server/package.json')||fs.existsSync(cwd+'/client/package.json');if(!hasPkg){process.exit(0)}const dirs=[cwd,cwd+'/server',cwd+'/client'].filter(d=>fs.existsSync(d+'/package.json')&&fs.existsSync(d+'/node_modules'));let blocked=false;let msg='';for(const dir of dirs){try{execSync('npm audit --audit-level=high',{cwd:dir,stdio:'pipe'})}catch(e){blocked=true;msg+=dir+': vulnerabilities found. '}}if(blocked){console.log(JSON.stringify({continue:false,stopReason:'npm audit blocked commit: '+msg+'Run npm audit for details.'}))}else{console.log(JSON.stringify({continue:true}))}})\"",
-						"timeout": 30,
-						"statusMessage": "Running npm audit..."
-					}
-				]
-			}
-		]
-	}
+  "permissions": {
+    "allow": [
+      "Edit",
+      "Write",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Read(//c/Users/priks/AppData/Local/Temp/claude/c--Users-priks--claude-projects-filemover/58323136-1c90-4378-b0b0-5aa9d3a81cce/tasks/**)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 8636 //F)",
+      "Bash(claude mcp:*)",
+      "Bash(npm view:*)",
+      "Bash(taskkill //PID 28756 //F)",
+      "Bash(taskkill //PID 5024 //F)",
+      "mcp__puppeteer__puppeteer_navigate",
+      "mcp__puppeteer__puppeteer_screenshot",
+      "mcp__puppeteer__puppeteer_evaluate",
+      "mcp__puppeteer__puppeteer_click",
+      "Bash(curl -s -o - -w \"\\\\nHTTP:%{http_code}\\\\n\" http://localhost:3001/api/health)",
+      "Bash(ls -la c:/Users/priks/.claude/projects/filemover/server/.env*)",
+      "Bash(ls -la c:/Users/priks/.claude/projects/filemover/.env*)",
+      "Bash(curl -s http://localhost:3001/api/transfers/stats)",
+      "Bash(taskkill //PID 30208 //F)",
+      "Bash(taskkill //PID 35204 //F)",
+      "Bash(npx tsc:*)",
+      "Bash(curl -s -X POST http://localhost:3001/api/connections -H \"Content-Type: application/json\" -d '{\"name\":\"Rebex Test\",\"type\":\"sftp\",\"host\":\"test.rebex.net\",\"port\":22,\"username\":\"demo\",\"password\":\"password\"}')",
+      "Bash(curl -s -X POST http://localhost:3001/api/connections/edba0392-f3b7-4a25-813a-bb2f85b95bf3/test)",
+      "Bash(curl -s -X POST http://localhost:3001/api/connections -H \"Content-Type: application/json\" -d '{\"name\":\"Local Out\",\"type\":\"local\",\"host\":\"C:/Users/priks/.claude/projects/filemover/transfers-out\"}')",
+      "Bash(curl -s -X POST http://localhost:3001/api/connections/13415b32-8f9e-4d9d-8ef6-a093e280d595/test)",
+      "Bash(curl -s -X POST http://localhost:3001/api/jobs -H \"Content-Type: application/json\" -d '{\"name\":\"Rebex to Local\",\"sourceConnectionId\":\"edba0392-f3b7-4a25-813a-bb2f85b95bf3\",\"sourcePath\":\"/pub/example\",\"destConnectionId\":\"13415b32-8f9e-4d9d-8ef6-a093e280d595\",\"destPath\":\"/rebex-test\",\"filePattern\":\"*.txt\"}')",
+      "Bash(curl -s -X POST http://localhost:3001/api/jobs/dfbaf6af-9cd4-4ed4-b598-dad85fb85a21/run)",
+      "Bash(npx -y shadcn@latest init --yes --base-color neutral)",
+      "Bash(npx -y shadcn@latest init --help)",
+      "Bash(npx -y shadcn@latest init --template vite --base radix --yes)",
+      "Bash(npx -y shadcn@latest init --template vite --base radix --preset base-nova --yes)",
+      "Bash(npx -y shadcn@latest init --template vite --base radix --preset nova --yes)",
+      "Bash(npx -y shadcn@latest add dialog input label select textarea --yes)",
+      "Bash(npm audit:*)",
+      "Bash(taskkill //PID 26188 //F)",
+      "Bash(taskkill //PID 38216 //F)",
+      "Bash(npm i:*)",
+      "Bash(npx prisma:*)",
+      "Bash(taskkill //PID 31228 //F)",
+      "Bash(tee /tmp/backend.log)",
+      "Bash(printf -- '-----BEGIN OPENSSH PRIVATE KEY-----\\\\nZmFrZWtleWRhdGE=\\\\n-----END OPENSSH PRIVATE KEY-----\\\\n')",
+      "Bash(curl -s -X POST -F \"key=@/tmp/fake.key\" http://localhost:3001/api/connections/upload-key)",
+      "Bash(curl -s http://localhost:3001/api/connections)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -w \"\\\\nHTTP: %{http_code}\\\\n\" http://localhost:3001/api/health)",
+      "Bash(wc -l c:/Users/priks/.claude/projects/filemover/client/src/App.tsx c:/Users/priks/.claude/projects/filemover/client/src/pages/*.tsx)",
+      "Bash(gh pr *)"
+    ],
+    "defaultMode": "acceptEdits",
+    "additionalDirectories": [
+      "c:\\Users\\priks\\.claude\\projects\\filemover\\server\\src\\core",
+      "c:\\Users\\priks\\.claude\\projects\\filemover\\client\\src\\components",
+      "C:\\Users\\priks\\.claude\\projects\\filemover\\server",
+      "C:\\Users\\priks\\.claude\\projects\\filemover\\server\\keys"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const{execSync}=require('child_process');const fs=require('fs');const cwd='c:/Users/priks/.claude/projects/filemover';const hasPkg=fs.existsSync(cwd+'/package.json')||fs.existsSync(cwd+'/server/package.json')||fs.existsSync(cwd+'/client/package.json');if(!hasPkg){process.exit(0)}const dirs=[cwd,cwd+'/server',cwd+'/client'].filter(d=>fs.existsSync(d+'/package.json')&&fs.existsSync(d+'/node_modules'));let blocked=false;let msg='';for(const dir of dirs){try{execSync('npm audit --audit-level=high',{cwd:dir,stdio:'pipe'})}catch(e){blocked=true;msg+=dir+': vulnerabilities found. '}}if(blocked){console.log(JSON.stringify({continue:false,stopReason:'npm audit blocked commit: '+msg+'Run npm audit for details.'}))}else{console.log(JSON.stringify({continue:true}))}})\"",
+            "timeout": 30,
+            "statusMessage": "Running npm audit..."
+          }
+        ]
+      }
+    ]
+  }
 }
