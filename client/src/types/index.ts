@@ -64,6 +64,27 @@ export interface Stats {
 	recentTransfers: TransferLog[];
 }
 
+export type SharePointAuthType = "client_secret" | "client_certificate" | "password";
+
+export interface SharePointExtra {
+	authType: SharePointAuthType;
+	tenantId: string;
+	clientId: string;
+	siteUrl: string;
+	driveId?: string;
+	certificatePath?: string;
+}
+
+export type AzureStorageAuthType = "connection_string" | "account_key" | "sas_token" | "azure_ad";
+
+export interface AzureStorageExtra {
+	authType: AzureStorageAuthType;
+	accountName?: string;
+	containerName: string;
+	tenantId?: string;
+	clientId?: string;
+}
+
 export interface CreateConnectionInput {
 	name: string;
 	type: ConnectionType;
@@ -73,6 +94,7 @@ export interface CreateConnectionInput {
 	password?: string;
 	keyPath?: string;
 	passphrase?: string;
+	extra?: Record<string, unknown>;
 }
 
 export interface CreateJobInput {
@@ -82,6 +104,7 @@ export interface CreateJobInput {
 	destConnectionId: string;
 	destPath: string;
 	filePattern?: string;
+	schedule?: string | null;
 	enabled?: boolean;
 }
 

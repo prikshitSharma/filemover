@@ -4,10 +4,10 @@ export type { FileConnector, FileInfo, ConnectorConfig } from "./base";
 const connectorMap: Record<string, () => Promise<import("./base").FileConnector>> = {
 	sftp: async () => new (await import("./sftp")).SftpConnector(),
 	local: async () => new (await import("./local")).LocalConnector(),
-	// ftp: async () => new (await import("./ftp")).FtpConnector(),
+	ftp: async () => new (await import("./ftp")).FtpConnector(),
 	// smb: async () => new (await import("./smb")).SmbConnector(),
-	// sharepoint: async () => new (await import("./sharepoint")).SharePointConnector(),
-	// "azure-storage": async () => new (await import("./azure-storage")).AzureStorageConnector(),
+	sharepoint: async () => new (await import("./sharepoint")).SharePointConnector(),
+	"azure-storage": async () => new (await import("./azure-storage")).AzureStorageConnector(),
 };
 
 export async function createConnector(type: string): Promise<import("./base").FileConnector> {
