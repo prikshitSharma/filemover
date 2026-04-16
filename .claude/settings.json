@@ -51,7 +51,8 @@
       "Bash(curl -s http://localhost:3001/api/connections)",
       "Read(//tmp/**)",
       "Bash(curl -s -w \"\\\\nHTTP: %{http_code}\\\\n\" http://localhost:3001/api/health)",
-      "Bash(wc -l c:/Users/priks/.claude/projects/filemover/client/src/App.tsx c:/Users/priks/.claude/projects/filemover/client/src/pages/*.tsx)"
+      "Bash(wc -l c:/Users/priks/.claude/projects/filemover/client/src/App.tsx c:/Users/priks/.claude/projects/filemover/client/src/pages/*.tsx)",
+      "Bash(gh pr *)"
     ],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [

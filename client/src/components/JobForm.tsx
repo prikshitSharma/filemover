@@ -133,7 +133,19 @@ export function JobForm({ open, onClose }: Props) {
 							placeholder="*.txt"
 						/>
 					</div>
-					{error && <div className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</div>}
+					<div className="space-y-1.5">
+						<Label htmlFor="job-schedule">Schedule (cron expression)</Label>
+						<Input
+							id="job-schedule"
+							value={form.schedule ?? ""}
+							onChange={(e) => setForm({ ...form, schedule: e.target.value || null })}
+							placeholder="Leave blank for manual only — e.g. */5 * * * * (every 5 min)"
+						/>
+						<p className="text-xs text-muted-foreground">
+							Format: minute hour day month weekday — e.g. <code className="text-xs">0 2 * * *</code> = daily at 2 AM
+						</p>
+					</div>
+					{error && <div className="text-sm text-destructive bg-destructive/10 rounded-lg px-3 py-2">{error}</div>}
 					</form>
 				</DialogBody>
 				<DialogFooter>

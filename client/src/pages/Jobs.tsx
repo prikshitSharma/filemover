@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
-import { Plus, ArrowRight, FileBox, Play, Trash2 } from "lucide-react";
+import { Plus, ArrowRight, FileBox, Play, Trash2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobForm } from "../components/JobForm";
 import type { Job, RunSummary } from "../types";
@@ -82,6 +82,12 @@ export function Jobs() {
 										</button>
 									</div>
 								</div>
+								{job.schedule && (
+									<div className="flex items-center gap-1.5 mt-2 text-xs text-primary">
+										<Clock className="w-3.5 h-3.5" />
+										<code className="bg-primary/10 px-1.5 py-0.5 rounded">{job.schedule}</code>
+									</div>
+								)}
 								<div className="flex items-center gap-3 mt-3 text-sm text-muted-foreground">
 									<span className="px-2 py-0.5 bg-accent text-accent-foreground rounded text-xs uppercase font-medium">{job.sourceConnection.type}</span>
 									<span>{job.sourceConnection.name}:{job.sourcePath}</span>
