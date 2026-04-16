@@ -16,6 +16,7 @@ interface Props {
 const TYPES: { value: ConnectionType; label: string }[] = [
 	{ value: "sftp", label: "SFTP" },
 	{ value: "ftp", label: "FTP / FTPS" },
+	{ value: "smb", label: "SMB / Windows Share" },
 	{ value: "sharepoint", label: "SharePoint" },
 	{ value: "azure-storage", label: "Azure Blob Storage" },
 	{ value: "local", label: "Local folder" },
@@ -70,9 +71,12 @@ export function ConnectionForm({ open, onClose }: Props) {
 	const isLocal = form.type === "local";
 	const isSftp = form.type === "sftp";
 	const isFtp = form.type === "ftp";
+	const isSmb = form.type === "smb";
 	const isSharePoint = form.type === "sharepoint";
 	const isAzure = form.type === "azure-storage";
 	const [ftpSecure, setFtpSecure] = useState(false);
+	const [smbShare, setSmbShare] = useState("");
+	const [smbDomain, setSmbDomain] = useState("");
 
 	function resetState() {
 		setForm(EMPTY);
@@ -88,6 +92,8 @@ export function ConnectionForm({ open, onClose }: Props) {
 		setAzTenantId("");
 		setAzClientId("");
 		setFtpSecure(false);
+		setSmbShare("");
+		setSmbDomain("");
 		setKeyFile(null);
 		setError(null);
 		if (fileInputRef.current) fileInputRef.current.value = "";
@@ -126,6 +132,17 @@ export function ConnectionForm({ open, onClose }: Props) {
 			if (form.username) payload.username = form.username;
 			if (form.password) payload.password = form.password;
 			if (ftpSecure) payload.extra = { secure: true };
+		}
+
+		if (isSmb) {
+			if (form.port) payload.port = Number(form.port);
+			if (form.username) payload.username = form.username;
+			if (form.password) payload.password = form.password;
+			if (!smbShare) { setError("Share name is required."); return; }
+			payload.extra = {
+				shareName: smbShare,
+				...(smbDomain ? { domain: smbDomain } : {}),
+			};
 		}
 
 		if (isSharePoint) {
@@ -392,6 +409,70 @@ export function ConnectionForm({ open, onClose }: Props) {
 								/>
 								Use FTPS (TLS/SSL)
 							</label>
+						</>
+					)}
+
+					{/* ---------- SMB ---------- */}
+					{isSmb && (
+						<>
+							<div className="space-y-1.5">
+								<Label htmlFor="smb-host">Host / IP</Label>
+								<Input
+									id="smb-host"
+									required
+									value={form.host}
+									onChange={(e) => setForm({ ...form, host: e.target.value })}
+									placeholder="192.168.1.100 or fileserver"
+								/>
+							</div>
+							<div className="grid grid-cols-2 gap-3">
+								<div className="space-y-1.5">
+									<Label htmlFor="smb-share">Share name</Label>
+									<Input
+										id="smb-share"
+										required
+										value={smbShare}
+										onChange={(e) => setSmbShare(e.target.value)}
+										placeholder="SharedDocs"
+									/>
+								</div>
+								<div className="space-y-1.5">
+									<Label htmlFor="smb-port">Port</Label>
+									<Input
+										id="smb-port"
+										type="number"
+										value={form.port ?? ""}
+										onChange={(e) => setForm({ ...form, port: e.target.value ? Number(e.target.value) : undefined })}
+										placeholder="445"
+									/>
+								</div>
+							</div>
+							<div className="space-y-1.5">
+								<Label htmlFor="smb-domain">Domain (optional)</Label>
+								<Input
+									id="smb-domain"
+									value={smbDomain}
+									onChange={(e) => setSmbDomain(e.target.value)}
+									placeholder="WORKGROUP"
+								/>
+							</div>
+							<div className="space-y-1.5">
+								<Label htmlFor="smb-user">Username</Label>
+								<Input
+									id="smb-user"
+									value={form.username ?? ""}
+									onChange={(e) => setForm({ ...form, username: e.target.value })}
+								/>
+							</div>
+							<div className="space-y-1.5">
+								<Label htmlFor="smb-pass">Password</Label>
+								<Input
+									id="smb-pass"
+									type="password"
+									value={form.password ?? ""}
+									onChange={(e) => setForm({ ...form, password: e.target.value })}
+								/>
+							</div>
 						</>
 					)}
 
