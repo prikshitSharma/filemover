@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,14 +51,15 @@ export function JobForm({ open, onClose }: Props) {
 					<DialogTitle>New Transfer Job</DialogTitle>
 					<DialogDescription>Define what files move between which connections.</DialogDescription>
 				</DialogHeader>
-				<form
-					id="job-form"
-					onSubmit={(e) => {
-						e.preventDefault();
-						submit();
-					}}
-					className="space-y-3"
-				>
+				<DialogBody>
+					<form
+						id="job-form"
+						onSubmit={(e) => {
+							e.preventDefault();
+							submit();
+						}}
+						className="space-y-3"
+					>
 					<div className="space-y-1.5">
 						<Label htmlFor="job-name">Job name</Label>
 						<Input
@@ -133,7 +134,8 @@ export function JobForm({ open, onClose }: Props) {
 						/>
 					</div>
 					{error && <div className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</div>}
-				</form>
+					</form>
+				</DialogBody>
 				<DialogFooter>
 					<Button type="button" variant="ghost" onClick={onClose}>
 						Cancel

@@ -4,10 +4,10 @@ import { ScrollText, CheckCircle, XCircle, Clock } from "lucide-react";
 import type { TransferLog } from "../types";
 
 const statusIcons: Record<string, React.ReactNode> = {
-	completed: <CheckCircle className="w-4 h-4 text-green-600" />,
-	failed: <XCircle className="w-4 h-4 text-red-600" />,
-	transferring: <Clock className="w-4 h-4 text-yellow-600" />,
-	pending: <Clock className="w-4 h-4 text-gray-400" />,
+	completed: <CheckCircle className="w-4 h-4 text-emerald-500" />,
+	failed: <XCircle className="w-4 h-4 text-destructive" />,
+	transferring: <Clock className="w-4 h-4 text-amber-500" />,
+	pending: <Clock className="w-4 h-4 text-muted-foreground" />,
 };
 
 export function Transfers() {
@@ -21,41 +21,42 @@ export function Transfers() {
 
 	return (
 		<div>
-			<h2 className="text-2xl font-bold text-gray-900 mb-6">Transfer Logs</h2>
+			<h2 className="text-2xl font-bold tracking-tight mb-1">Transfer Logs</h2>
+			<p className="text-sm text-muted-foreground mb-6">Audit trail of all file transfers.</p>
 
 			{isLoading ? (
-				<div className="text-gray-500">Loading transfers...</div>
+				<div className="text-muted-foreground">Loading transfers...</div>
 			) : !transfers || transfers.length === 0 ? (
-				<div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-					<ScrollText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-					<h3 className="text-lg font-medium text-gray-900 mb-2">No transfers yet</h3>
-					<p className="text-gray-500 text-sm">Transfer logs will appear here once jobs start running.</p>
+				<div className="bg-card text-card-foreground rounded-xl border p-12 text-center shadow-sm">
+					<ScrollText className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+					<h3 className="text-lg font-medium mb-2">No transfers yet</h3>
+					<p className="text-muted-foreground text-sm">Transfer logs will appear here once jobs start running.</p>
 				</div>
 			) : (
-				<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+				<div className="bg-card text-card-foreground rounded-xl border overflow-hidden shadow-sm">
 					<table className="w-full text-sm">
-						<thead className="bg-gray-50 border-b border-gray-200">
+						<thead className="bg-muted/50 border-b">
 							<tr>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">File</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Job</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Size</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Duration</th>
-								<th className="text-left px-4 py-3 font-medium text-gray-600">Started</th>
+								<th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Status</th>
+								<th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">File</th>
+								<th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Job</th>
+								<th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Size</th>
+								<th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Duration</th>
+								<th className="text-left px-4 py-3 font-medium text-muted-foreground text-xs uppercase tracking-wide">Started</th>
 							</tr>
 						</thead>
-						<tbody className="divide-y divide-gray-100">
+						<tbody className="divide-y divide-border">
 							{transfers.map((t: TransferLog) => (
-								<tr key={t.id} className="hover:bg-gray-50">
+								<tr key={t.id} className="hover:bg-muted/30 transition-colors">
 									<td className="px-4 py-3">{statusIcons[t.status] ?? t.status}</td>
-									<td className="px-4 py-3 text-gray-900">
+									<td className="px-4 py-3">
 										{t.fileName}
-										{t.errorMessage && <div className="text-xs text-red-600 mt-0.5">{t.errorMessage}</div>}
+										{t.errorMessage && <div className="text-xs text-destructive mt-0.5">{t.errorMessage}</div>}
 									</td>
-									<td className="px-4 py-3 text-gray-500">{t.job?.name}</td>
-									<td className="px-4 py-3 text-gray-500">{t.fileSize != null ? formatBytes(t.fileSize) : "—"}</td>
-									<td className="px-4 py-3 text-gray-500">{t.duration != null ? `${t.duration} ms` : "—"}</td>
-									<td className="px-4 py-3 text-gray-500">{new Date(t.startedAt).toLocaleString()}</td>
+									<td className="px-4 py-3 text-muted-foreground">{t.job?.name}</td>
+									<td className="px-4 py-3 text-muted-foreground">{t.fileSize != null ? formatBytes(t.fileSize) : "—"}</td>
+									<td className="px-4 py-3 text-muted-foreground">{t.duration != null ? `${t.duration} ms` : "—"}</td>
+									<td className="px-4 py-3 text-muted-foreground">{new Date(t.startedAt).toLocaleString()}</td>
 								</tr>
 							))}
 						</tbody>
