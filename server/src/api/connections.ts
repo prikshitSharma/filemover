@@ -1,4 +1,8 @@
 import { Router, Request, Response } from "express";
+import { randomUUID } from "crypto";
+import { unlink, mkdir } from "fs/promises";
+import path from "path";
+import multer from "multer";
 import { PrismaClient } from "../generated/prisma/client";
 import { ConnectionSchema } from "../types";
 import { createConnector } from "../connectors";
@@ -6,17 +10,23 @@ import { createConnector } from "../connectors";
 const router = Router();
 const prisma = new PrismaClient();
 
+const KEYS_DIR = path.resolve(process.cwd(), "keys");
+const upload = multer({
+	storage: multer.memoryStorage(),
+	limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+});
+
+function stripSecrets<T extends { password: string | null; passphrase: string | null }>(connection: T) {
+	const { password, passphrase, ...rest } = connection;
+	return { ...rest, hasPassword: !!password, hasPassphrase: !!passphrase };
+}
+
 // GET /api/connections
 router.get("/", async (_req: Request, res: Response) => {
 	const connections = await prisma.connection.findMany({
 		orderBy: { createdAt: "desc" },
 	});
-	// Never send passwords to the client
-	const safe = connections.map(({ password, ...rest }) => ({
-		...rest,
-		hasPassword: !!password,
-	}));
-	res.json(safe);
+	res.json(connections.map(stripSecrets));
 });
 
 // GET /api/connections/:id
@@ -28,8 +38,21 @@ router.get("/:id", async (req: Request<{ id: string }>, res: Response) => {
 		res.status(404).json({ error: "Connection not found" });
 		return;
 	}
-	const { password, ...safe } = connection;
-	res.json({ ...safe, hasPassword: !!password });
+	res.json(stripSecrets(connection));
+});
+
+// POST /api/connections/upload-key — save private key file, return keyPath for subsequent connection create
+router.post("/upload-key", upload.single("key"), async (req: Request, res: Response) => {
+	if (!req.file) {
+		res.status(400).json({ error: "No file uploaded" });
+		return;
+	}
+	await mkdir(KEYS_DIR, { recursive: true });
+	const fileName = `${randomUUID()}.key`;
+	const absolutePath = path.join(KEYS_DIR, fileName);
+	const { writeFile } = await import("fs/promises");
+	await writeFile(absolutePath, req.file.buffer, { mode: 0o600 });
+	res.status(201).json({ keyPath: `keys/${fileName}` });
 });
 
 // POST /api/connections
@@ -46,8 +69,7 @@ router.post("/", async (req: Request, res: Response) => {
 			extra: extra ? JSON.stringify(extra) : null,
 		},
 	});
-	const { password, ...safe } = connection;
-	res.status(201).json({ ...safe, hasPassword: !!password });
+	res.status(201).json(stripSecrets(connection));
 });
 
 // PUT /api/connections/:id
@@ -65,15 +87,23 @@ router.put("/:id", async (req: Request<{ id: string }>, res: Response) => {
 			extra: extra ? JSON.stringify(extra) : null,
 		},
 	});
-	const { password, ...safe } = connection;
-	res.json({ ...safe, hasPassword: !!password });
+	res.json(stripSecrets(connection));
 });
 
 // DELETE /api/connections/:id
 router.delete("/:id", async (req: Request<{ id: string }>, res: Response) => {
-	await prisma.connection.delete({
-		where: { id: req.params.id },
-	});
+	const connection = await prisma.connection.findUnique({ where: { id: req.params.id } });
+	if (!connection) {
+		res.status(404).json({ error: "Connection not found" });
+		return;
+	}
+	if (connection.keyPath) {
+		const absolute = path.resolve(process.cwd(), connection.keyPath);
+		if (absolute.startsWith(KEYS_DIR + path.sep)) {
+			await unlink(absolute).catch(() => undefined);
+		}
+	}
+	await prisma.connection.delete({ where: { id: req.params.id } });
 	res.status(204).send();
 });
 
@@ -92,6 +122,7 @@ router.post("/:id/test", async (req: Request<{ id: string }>, res: Response) => 
 			username: connection.username ?? undefined,
 			password: connection.password ?? undefined,
 			keyPath: connection.keyPath ?? undefined,
+			passphrase: connection.passphrase ?? undefined,
 			extra: connection.extra ? (JSON.parse(connection.extra) as Record<string, unknown>) : undefined,
 		});
 		await connector.disconnect();

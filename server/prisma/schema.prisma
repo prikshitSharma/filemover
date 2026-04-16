@@ -16,7 +16,8 @@ model Connection {
 	port      Int?
 	username  String?
 	password  String?
-	keyPath   String?
+	keyPath    String?
+	passphrase String?
 	extra     String?  // JSON string for protocol-specific config
 	createdAt DateTime @default(now())
 	updatedAt DateTime @updatedAt

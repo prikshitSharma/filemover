@@ -8,6 +8,7 @@ export const ConnectionSchema = z.object({
 	username: z.string().optional(),
 	password: z.string().optional(),
 	keyPath: z.string().optional(),
+	passphrase: z.string().optional(),
 	extra: z.record(z.unknown()).optional(),
 });
 

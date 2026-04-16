@@ -33,6 +33,16 @@ export const api = {
 		request<Connection>(`/connections/${id}`, { method: "PUT", body: JSON.stringify(data) }),
 	deleteConnection: (id: string) => request<void>(`/connections/${id}`, { method: "DELETE" }),
 	testConnection: (id: string) => request<{ ok: boolean; error?: string }>(`/connections/${id}/test`, { method: "POST" }),
+	uploadKey: async (file: File): Promise<{ keyPath: string }> => {
+		const body = new FormData();
+		body.append("key", file);
+		const res = await fetch(`${BASE_URL}/connections/upload-key`, { method: "POST", body });
+		if (!res.ok) {
+			const error = await res.json().catch(() => ({ error: res.statusText }));
+			throw new Error(typeof error.error === "string" ? error.error : `Upload failed: ${res.status}`);
+		}
+		return res.json();
+	},
 
 	// Jobs
 	getJobs: () => request<Job[]>("/jobs"),

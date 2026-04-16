@@ -10,6 +10,7 @@ export interface Connection {
 	keyPath: string | null;
 	extra: string | null;
 	hasPassword: boolean;
+	hasPassphrase: boolean;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -71,6 +72,7 @@ export interface CreateConnectionInput {
 	username?: string;
 	password?: string;
 	keyPath?: string;
+	passphrase?: string;
 }
 
 export interface CreateJobInput {

@@ -14,6 +14,7 @@ export class SftpConnector implements FileConnector {
 			username: config.username,
 			password: config.password,
 			privateKey: config.keyPath ? await this.loadKey(config.keyPath) : undefined,
+			passphrase: config.passphrase,
 			readyTimeout: 15_000,
 		});
 		this.connected = true;

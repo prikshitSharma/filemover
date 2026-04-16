@@ -14,6 +14,7 @@ export interface ConnectorConfig {
 	username?: string;
 	password?: string;
 	keyPath?: string;
+	passphrase?: string;
 	extra?: Record<string, unknown>;
 }
 

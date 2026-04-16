@@ -98,6 +98,7 @@ function toConfig(c: {
 	username: string | null;
 	password: string | null;
 	keyPath: string | null;
+	passphrase: string | null;
 	extra: string | null;
 }): ConnectorConfig {
 	return {
@@ -106,6 +107,7 @@ function toConfig(c: {
 		username: c.username ?? undefined,
 		password: c.password ?? undefined,
 		keyPath: c.keyPath ?? undefined,
+		passphrase: c.passphrase ?? undefined,
 		extra: c.extra ? (JSON.parse(c.extra) as Record<string, unknown>) : undefined,
 	};
 }
